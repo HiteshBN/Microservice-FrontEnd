@@ -1,19 +1,16 @@
-# Use NodeJS base image
-FROM agileek/ionic-framework AS ionic
-
-# Create app directory
+## Build
+FROM beevelop/ionic AS ionic
+# Create the application directory
 WORKDIR /usr/src/app
-
-# Install app dependencies by copying
-# package.json and package-lock.json
+# Install the application dependencies
+# We can use wildcard to ensure both package.json AND package-lock.json are considered
+# where available (npm@5+)
 COPY package*.json ./
-
-# Install dependencies
 RUN npm ci
-
-# Copy app source
+# Bundle app source
 COPY . .
 RUN ionic build
-
-EXPOSE 8100
-CMD ["ionic", "serve"]
+## Run 
+FROM nginx:alpine
+#COPY www /usr/share/nginx/html
+COPY --from=ionic /usr/src/app/www /usr/share/nginx/html
